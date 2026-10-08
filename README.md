@@ -1,5 +1,11 @@
 # sinergia-vmc-modbus
 
+> **⚠️ Repository archiviato.** Questa libreria non viene più aggiornata né
+> pubblicata su PyPI. La versione aggiornata della mappa dei registri si trova
+> nell'integrazione Home Assistant
+> [ha-sinergia-vmc](https://github.com/riccardorossi92/ha-sinergia-vmc), in
+> [`custom_components/sinergia_vmc/vmc_modbus_device/`](https://github.com/riccardorossi92/ha-sinergia-vmc/tree/main/custom_components/sinergia_vmc/vmc_modbus_device).
+
 Device library (standalone, non legata a Home Assistant) per le unità VMC
 Sinergia con elettronica **CPRO3OEM-K** (HRD/HRD+), basata sul documento
 ufficiale *"Manuale di collegamento e impostazioni MODBUS HRD/HRD+"*
