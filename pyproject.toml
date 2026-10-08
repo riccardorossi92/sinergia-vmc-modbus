@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sinergia-vmc-modbus"
+version = "0.2.0"
+description = "Device library (register map) for Sinergia VMC units with CPRO3OEM-K electronics, over Modbus RTU"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+    "modbus-connection>=4.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/riccardorossi92/sinergia-vmc-modbus"
+
+[tool.setuptools.packages.find]
+where = ["src"]
