@@ -1,7 +1,8 @@
 # sinergia-vmc-modbus
 
-> La stessa mappa dei registri è usata (come copia interna) dall'integrazione
-> Home Assistant [ha-sinergia-vmc](https://github.com/riccardorossi92/ha-sinergia-vmc).
+> Questa libreria è usata dall'integrazione Home Assistant
+> [ha-sinergia-vmc](https://github.com/riccardorossi92/ha-sinergia-vmc), che la
+> installa automaticamente da PyPI.
 
 Device library (standalone, non legata a Home Assistant) per le unità VMC
 Sinergia con elettronica **CPRO3OEM-K** (HRD/HRD+), basata sul documento
