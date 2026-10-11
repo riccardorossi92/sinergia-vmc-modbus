@@ -4,6 +4,7 @@ from .device import (
     TIME_BAND_DAYS,
     TIME_BANDS_PER_DAY,
     Alarms,
+    Calibrations,
     Command,
     CompressorStatusCode,
     DamperStatusCode,
@@ -23,6 +24,7 @@ from .device import (
     TimeBands,
     UnitStatusCode,
     VmcDevice,
+    async_write_time_band_start,
     time_band,
 )
 
@@ -30,6 +32,7 @@ __all__ = [
     "TIME_BANDS_PER_DAY",
     "TIME_BAND_DAYS",
     "Alarms",
+    "Calibrations",
     "Command",
     "CompressorStatusCode",
     "DamperStatusCode",
@@ -49,7 +52,8 @@ __all__ = [
     "TimeBands",
     "UnitStatusCode",
     "VmcDevice",
+    "async_write_time_band_start",
     "time_band",
 ]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

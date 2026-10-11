@@ -27,6 +27,7 @@ from modbus_connection.model.fields import boolean, enum, gauge, integer, uint32
 
 __all__ = [
     "Alarms",
+    "Calibrations",
     "TimeBandCode",
     "TimeBandSetpoints",
     "TimeBands",
@@ -333,6 +334,13 @@ class Setpoints(Component):
     humidity = integer(1586, signed=False, writable=True, unit="%")
     """PU01 - default 55%, range 0..100."""
 
+    dehum_differential = integer(1694, signed=False, writable=True, unit="%")
+    """PU07 - differenziale deumidifica, default 10%, range 0..100. Con
+    compressore on/off la deumidifica parte sopra PU01 + PU07 e si ferma
+    sotto PU01. NON documentato da Sinergia: dedotto dal manuale EVCO c-pro 3
+    OEM DE (ordine parametri PU02..PS07, ancorato a S06=1703/S07=1704 e
+    A19=1735) e da scansione (vale 10 = default)."""
+
     freecooling_heating = gauge(1703, 0.1, writable=True, unit="°C")
     """S06 - default 4.0°C, range 0.0..68.0."""
 
@@ -408,7 +416,7 @@ def _time_band_fields() -> dict:
     dalla mezzanotte su 32 bit (word bassa, word alta).
     """
     fields: dict = {
-        "__doc__": "Programmazione a fasce orarie e vacanza (R/O).",
+        "__doc__": "Programmazione a fasce orarie e vacanza (R/W).",
         "register_space": "holding",
         "vacation_days": integer(1497, signed=False, unit="d"),
         "vacation_hours": integer(1498, signed=False, unit="h"),
@@ -416,24 +424,69 @@ def _time_band_fields() -> dict:
     for d, day in enumerate(TIME_BAND_DAYS):
         for b in range(TIME_BANDS_PER_DAY):
             addr = _TIME_BANDS_BASE + 12 * d + 3 * b
-            fields[f"{day}_{b + 1}_type"] = integer(addr, signed=False)
-            fields[f"{day}_{b + 1}_time_lo"] = integer(addr + 1, signed=False)
-            fields[f"{day}_{b + 1}_time_hi"] = integer(addr + 2, signed=False)
+            fields[f"{day}_{b + 1}_type"] = integer(addr, signed=False, writable=True)
+            fields[f"{day}_{b + 1}_start"] = uint32(
+                addr + 1, word_order="little", writable=True, unit="s"
+            )
     return fields
 
 
-# 84 campi generati: più leggibile che scriverli uno per uno.
+# 58 campi generati: più leggibile che scriverli uno per uno.
 TimeBands = type("TimeBands", (Component,), _time_band_fields())
 
 
 def time_band(bands: TimeBands, day: str, index: int) -> tuple[int | None, int | None]:
     """Ritorna (tipo, secondi dalla mezzanotte) della fascia `index` (1-4)."""
-    kind = getattr(bands, f"{day}_{index}_type")
-    lo = getattr(bands, f"{day}_{index}_time_lo")
-    hi = getattr(bands, f"{day}_{index}_time_hi")
-    if lo is None or hi is None:
-        return kind, None
-    return kind, (hi << 16) | lo
+    return getattr(bands, f"{day}_{index}_type"), getattr(bands, f"{day}_{index}_start")
+
+
+async def async_write_time_band_start(
+    bands: TimeBands, day: str, index: int, seconds: int
+) -> None:
+    """Scrive l'orario di inizio di una fascia, una word alla volta.
+
+    La scheda applica le due word separatamente e satura a 23:59:59 ogni
+    valore intermedio oltre le 24 ore: scrivendo 18:00 (hi=0) sopra 20:00
+    (hi=1) con la word bassa per prima, il valore intermedio hi=1/lo=64800
+    diventa 23:59:59 e il risultato finale è 05:47:43. Si scrive quindi per
+    prima la word alta quando scende e la word bassa quando sale, così ogni
+    valore intermedio resta valido.
+    """
+    address = _TIME_BANDS_BASE + 12 * TIME_BAND_DAYS.index(day) + 3 * (index - 1) + 1
+    old = getattr(bands, f"{day}_{index}_start") or 0
+    lo, hi = seconds & 0xFFFF, seconds >> 16
+    unit = bands.modbus_unit
+    if hi < old >> 16:
+        await unit.write_register(address + 1, hi)
+        await unit.write_register(address, lo)
+    else:
+        await unit.write_register(address, lo)
+        await unit.write_register(address + 1, hi)
+
+
+class Calibrations(Component):
+    """Calibrazione (offset) delle sonde, EVCO PM80-PM86 (R/W).
+
+    NON documentato da Sinergia: verificato sul campo impostando M80/M86 dal
+    pannello (menù Manutentore -> CAL) e confrontando due scansioni.
+    """
+
+    register_space = "holding"
+
+    room_temperature = gauge(1616, 0.1, writable=True, unit="°C")
+    """M80 - sonda temperatura ambiente (pannello a muro), -10.0..10.0."""
+
+    outdoor_temperature = gauge(1617, 0.1, writable=True, unit="°C")
+    """M81 - sonda temperatura aria esterna, -10.0..10.0."""
+
+    water_temperature = gauge(1618, 0.1, writable=True, unit="°C")
+    """M82 - sonda temperatura acqua, -10.0..10.0."""
+
+    exhaust_temperature = gauge(1619, 0.1, writable=True, unit="°C")
+    """M83 - sonda temperatura aria espulsa, -10.0..10.0."""
+
+    room_humidity = integer(1622, writable=True, unit="%")
+    """M86 - sonda umidità ambiente (pannello a muro), -10..10."""
 
 
 class TimeBandSetpoints(Component):
@@ -502,6 +555,7 @@ class VmcDevice(Device):
         "fan_speeds",
         "time_bands",
         "time_band_setpoints",
+        "calibrations",
     )
 
     def __init__(self, unit) -> None:  # noqa: ANN001 - ModbusUnit from modbus_connection
@@ -518,3 +572,4 @@ class VmcDevice(Device):
         self.fan_speeds = FanSpeeds(unit)
         self.time_bands = TimeBands(unit)
         self.time_band_setpoints = TimeBandSetpoints(unit)
+        self.calibrations = Calibrations(unit)

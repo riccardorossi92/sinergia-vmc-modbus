@@ -1,15 +1,12 @@
 # sinergia-vmc-modbus
 
-> **⚠️ Repository archiviato.** Questa libreria non viene più aggiornata né
-> pubblicata su PyPI. La versione aggiornata della mappa dei registri si trova
-> nell'integrazione Home Assistant
-> [ha-sinergia-vmc](https://github.com/riccardorossi92/ha-sinergia-vmc), in
-> [`custom_components/sinergia_vmc/vmc_modbus_device/`](https://github.com/riccardorossi92/ha-sinergia-vmc/tree/main/custom_components/sinergia_vmc/vmc_modbus_device).
+> La stessa mappa dei registri è usata (come copia interna) dall'integrazione
+> Home Assistant [ha-sinergia-vmc](https://github.com/riccardorossi92/ha-sinergia-vmc).
 
 Device library (standalone, non legata a Home Assistant) per le unità VMC
 Sinergia con elettronica **CPRO3OEM-K** (HRD/HRD+), basata sul documento
 ufficiale *"Manuale di collegamento e impostazioni MODBUS HRD/HRD+"*
-(Sinergia, r.03_10-2023 / r.05) e verificata sul campo su un'unità HRD H
+(Sinergia, r.03_10-2023 / r.05) e verificata sul campo su un'unità HRD 30/15 H K DC
 con elettronica CPRO3OEM-K e pannello di comando a muro EVJD920N2VW.
 
 Costruita sopra [`modbus-connection`](https://pypi.org/project/modbus-connection/),
@@ -36,6 +33,12 @@ incluso qui). Gli indirizzi usati in questa libreria sono già quelli reali
 da chiamare via Modbus (`Addr_HEX` / `Addr_DEC - 1`), verificati incrociando
 12+ registri con la scansione reale RS-485 fatta sul campo da un altro
 utente della stessa VMC.
+
+## Installazione
+
+```bash
+pip install sinergia-vmc-modbus
+```
 
 ## Uso
 
@@ -83,10 +86,18 @@ asyncio.run(main())
   con `time_band(device.time_bands, "mon", 1)` → `(tipo, secondi dalla mezzanotte)`
 - `time_band_setpoints` — setpoint Comfort, offset Economy/Night e velocità
   ventilatori per fascia (R/W)
+- `calibrations` — calibrazione (offset) delle sonde M80-M83, M86 (R/W)
+
+Per modificare l'orario di inizio di una fascia usare
+`await async_write_time_band_start(device.time_bands, "tue", 3, 18 * 3600)`:
+la scheda applica le due word dell'orario separatamente e rifiuta (Modbus
+exception 0x04) i valori intermedi oltre 23:59:59, quindi le word vanno
+scritte una alla volta nell'ordine giusto.
 
 Inoltre `status.active_time_band` (fascia attiva, valori di `TimeBandCode`),
 `status.board_clock` (orologio della scheda, R/W) ed `enables.time_bands_enabled`
-(PH03, abilitazione fasce orarie).
+(PH03, abilitazione fasce orarie), `setpoints.dehum_differential` (PU07,
+differenziale deumidifica).
 
 ## Registri non documentati da Sinergia
 
@@ -100,8 +111,8 @@ quello dei registri.
   pannello li mostra in "ore x10" (906.8 sul display = 9068 h).
 - Orologio e date: secondi dal 2000-01-01, ora locale della scheda (non
   segue da solo il cambio ora legale/solare).
-- Da confermare sul campo: `status.active_time_band` (registro 1106) e le
-  velocità di ripresa per fascia (registri 1859-1861).
+- Lo stato di verifica sul campo di ogni registro non documentato è nel README
+  dell'integrazione: [Stato verifica registri non documentati](https://github.com/riccardorossi92/ha-sinergia-vmc#stato-verifica-registri-non-documentati).
 
 Registri del gruppo "COMANDI TEST" (PT01-PT11) sono volutamente esclusi
 (vedi nota sopra); possono essere aggiunti in futuro dopo verifica sul campo.
