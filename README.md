@@ -77,7 +77,9 @@ asyncio.run(main())
 - `alarms` — bitmask allarmi grezze + allarme cumulativo (R/O)
 - `digital_io` — bitmask ingressi/uscite digitali (R/O)
 - `status` — stato dettagliato unità/ventilatori/compressore/serranda (R/O)
-- `maintenance` — ore di funzionamento ventilatore mandata (R/O)
+- `maintenance` — contatori ore (mandata, ripresa, compressore), limiti e data
+  ultima manutenzione PM90; ore mandata (M01) e PM90 scrivibili, per azzerare
+  il conteggio dell'allarme filtri e registrare la data
 - `enables` — flag di abilitazione controllo da BMS/Modbus (R/W, **obbligatori**)
 - `command` — accensione, priorità cambio modalità, modalità estate/inverno,
   reset allarmi manuali (R/W)

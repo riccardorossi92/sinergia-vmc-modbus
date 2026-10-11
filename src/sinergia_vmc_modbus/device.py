@@ -230,8 +230,11 @@ class Maintenance(Component):
 
     register_space = "holding"
 
-    supply_fan_hours = uint32(1604, word_order="little", unit="h")
-    """PM01 - ore di funzionamento ventilatore mandata."""
+    supply_fan_hours = uint32(1604, word_order="little", writable=True, unit="h")
+    """PM01 - ore di funzionamento ventilatore mandata: è il contatore che la
+    scheda confronta con il limite M00 per l'allarme filtri. Si azzera dopo
+    la pulizia/sostituzione dei filtri (manuale Sinergia: "stato attuale
+    dall'ultimo reset")."""
 
     return_fan_hours = uint32(1606, word_order="little", unit="h")
     """PM02 - ore di funzionamento ventilatore ripresa."""
@@ -242,9 +245,10 @@ class Maintenance(Component):
     compressor_hours = uint32(1610, word_order="little", unit="h")
     """PM04 - ore di funzionamento compressore."""
 
-    last_maintenance = uint32(1612, word_order="little")
-    """PM90 - data ultima manutenzione, in secondi dal 2000-01-01 (ora locale
-    della scheda). 2008-01-01 = mai impostata."""
+    last_maintenance = uint32(1612, word_order="little", writable=True)
+    """PM90 - "Ultima data in cui si è fatta manutenzione della macchina"
+    (manuale EVCO, menù Contatori, "SEt datE"), in secondi dal 2000-01-01
+    (ora locale della scheda). 2008-01-01 = mai impostata."""
 
 
 # --------------------------------------------------------------------------- #
