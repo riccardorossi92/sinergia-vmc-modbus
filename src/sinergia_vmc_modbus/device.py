@@ -294,11 +294,14 @@ class Command(Component):
     onoff_by_supervisor = boolean(1105, writable=True)
     """Accende/spegne l'unità. Richiede Enables.onoff_by_bms = True."""
 
-    integ_request_by_bms = boolean(1140, writable=True)
-    """Richiesta integrazione di calore. Richiede Enables.integ_by_bms = True."""
+    integ_request_by_bms = boolean(1139, writable=True)
+    """Richiesta integrazione di calore (0x0473; il manuale riporta "Addr DEC"
+    1140, che è HEX + 1). Richiede Enables.integ_by_bms = True."""
 
-    dehum_request_by_bms = boolean(1141, writable=True)
-    """Richiesta deumidifica. Richiede Enables.dehum_by_bms = True."""
+    dehum_request_by_bms = boolean(1140, writable=True)
+    """Richiesta deumidifica (0x0474; il manuale riporta "Addr DEC" 1141, che
+    è HEX + 1 e in scrittura dà Modbus Exception 0x02). Richiede
+    Enables.dehum_by_bms = True."""
 
     summer_winter_mode = boolean(1583, writable=True)
     """MOdE - Modalità operativa: False=Estate, True=Inverno."""
