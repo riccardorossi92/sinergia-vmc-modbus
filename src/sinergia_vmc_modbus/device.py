@@ -402,16 +402,19 @@ class FanSpeeds(Component):
     max_return = gauge(1855, 0.01, signed=False, writable=True, unit="%")
     """F30 - default 75%, ripresa in qualsiasi modalità."""
 
-    manual_supply = gauge(1614, 0.01, signed=False, writable=True, unit="%")
+    manual_supply = gauge(1614, 0.01, signed=False, unit="%")
     """Velocità mandata in regolazione manuale (fasce orarie disattivate,
-    PH03 = 0), impostata dal pannello con le frecce. NON documentato da
-    Sinergia: trovato confrontando due scansioni prima/dopo il cambio di
-    velocità dal pannello (15% -> 65%); l'uscita mandata (639) segue
-    direttamente questo valore."""
+    PH03 = 0), impostata dal pannello con le frecce (5% per tacca). NON
+    documentato da Sinergia: trovato confrontando due scansioni prima/dopo il
+    cambio di velocità dal pannello; l'uscita mandata (639) segue questo
+    valore. Sola lettura: con il pannello a muro collegato è il pannello a
+    comandarla e sovrascrive subito le scritture Modbus (FC06 e FC16)."""
 
     manual_return = gauge(1858, 0.01, signed=False, writable=True, unit="%")
-    """Velocità ripresa in regolazione manuale (vedi manual_supply): 40% ->
-    75% nella stessa prova; l'uscita ripresa (640) segue questo valore."""
+    """Velocità ripresa in regolazione manuale (vedi manual_supply). A
+    differenza della mandata è scrivibile via Modbus: 40% e 50% scritti,
+    tenuti e seguiti dall'uscita ripresa (640). Le frecce del pannello la
+    spostano dello stesso passo della mandata, entro F29-F30."""
 
 
 # --------------------------------------------------------------------------- #

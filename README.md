@@ -85,7 +85,8 @@ asyncio.run(main())
   reset allarmi manuali (R/W)
 - `setpoints` — setpoint estate/inverno/umidità/free-cooling (R/W)
 - `fan_speeds` — velocità minime/massime ventilatori per ogni modalità e
-  velocità in regolazione manuale (fasce orarie disattivate) (R/W)
+  velocità in regolazione manuale (fasce orarie disattivate): ripresa R/W,
+  mandata R/O perché la comanda il pannello a muro (R/W per il resto)
 - `time_bands` — programmazione settimanale a fasce orarie (R/O), leggibile
   con `time_band(device.time_bands, "mon", 1)` → `(tipo, secondi dalla mezzanotte)`
 - `time_band_setpoints` — setpoint Comfort, offset Economy/Night e velocità
