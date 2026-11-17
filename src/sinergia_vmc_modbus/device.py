@@ -402,6 +402,17 @@ class FanSpeeds(Component):
     max_return = gauge(1855, 0.01, signed=False, writable=True, unit="%")
     """F30 - default 75%, ripresa in qualsiasi modalità."""
 
+    manual_supply = gauge(1614, 0.01, signed=False, writable=True, unit="%")
+    """Velocità mandata in regolazione manuale (fasce orarie disattivate,
+    PH03 = 0), impostata dal pannello con le frecce. NON documentato da
+    Sinergia: trovato confrontando due scansioni prima/dopo il cambio di
+    velocità dal pannello (15% -> 65%); l'uscita mandata (639) segue
+    direttamente questo valore."""
+
+    manual_return = gauge(1858, 0.01, signed=False, writable=True, unit="%")
+    """Velocità ripresa in regolazione manuale (vedi manual_supply): 40% ->
+    75% nella stessa prova; l'uscita ripresa (640) segue questo valore."""
+
 
 # --------------------------------------------------------------------------- #
 # Fasce orarie (NON documentate da Sinergia)
