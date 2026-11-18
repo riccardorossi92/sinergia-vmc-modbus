@@ -4,11 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sinergia-vmc-modbus"
-version = "0.4.3"
+version = "0.4.4"
 description = "Device library (register map) for Sinergia VMC units with CPRO3OEM-K electronics, over Modbus RTU"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
+keywords = [
+    "sinergia", "vmc", "mvhr", "ventilation", "heat-recovery", "dehumidifier",
+    "evco", "c-pro-3", "modbus", "modbus-rtu", "modbus-tcp", "home-automation",
+]
 license-files = ["LICENSE"]
 dependencies = [
     "modbus-connection>=4.12",
